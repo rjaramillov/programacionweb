@@ -261,6 +261,23 @@
   }
   .declara-badge.none{background:var(--paper); color:var(--grafito-soft); border:1px solid var(--line);}
   .edit-declara-link{font-size:12.5px; color:var(--indigo); background:none; text-decoration:underline; margin-top:6px;}
+
+  /* ---------- Botón de Transparencia IA (docente) ---------- */
+  .transp-btn{
+    display:inline-flex; align-items:center; gap:6px; background:transparent;
+    border:1.5px solid var(--amber); color:var(--amber); font-size:12px; font-weight:500;
+    padding:6px 12px; border-radius:999px;
+  }
+  .transp-btn:hover{background:rgba(240,169,59,0.12);}
+  .transp-badge{
+    display:inline-block; font-family:var(--font-mono); font-size:11px; background:var(--grafito);
+    color:#fff; padding:5px 12px; border-radius:999px; margin-bottom:14px;
+  }
+  .transp-modal .modal{max-width:520px;}
+  .transp-section{margin-bottom:16px;}
+  .transp-section h4{font-size:13px; margin-bottom:6px;}
+  .transp-section p, .transp-section li{font-size:13.5px; color:var(--grafito); line-height:1.6;}
+  .transp-section ul{margin:0; padding-left:20px;}
 </style>
 </head>
 <body>
@@ -274,6 +291,7 @@
     </div>
   </div>
   <div class="topbar-right">
+    <button class="transp-btn" id="btnTransparencia">🔍 Transparencia IA</button>
     <span class="pill" id="topbarStatus">sin sesión</span>
     <button class="link-btn" id="homeBtn">Inicio</button>
   </div>
@@ -475,6 +493,32 @@
   </div>
 </div>
 
+<!-- Transparencia en el uso de IA (declaración del profesor sobre este artefacto) -->
+<div class="modal-overlay transp-modal" id="transpOverlay">
+  <div class="modal">
+    <span class="transp-badge">Acuerdo No. 23 (2024) — Universidad de Colima</span>
+    <h3>Transparencia en el uso de IA</h3>
+    <div class="transp-section">
+      <p>Este artefacto (Bitácora Digital) fue diseñado y elaborado por el profesor <strong>Ricardo Jaramillo</strong>, Facultad de Telemática, con apoyo de Inteligencia Artificial Generativa (Claude, Anthropic), conforme a los Lineamientos para el Uso de la IAG en la Universidad de Colima.</p>
+    </div>
+    <div class="transp-section">
+      <h4>Usos declarados de la IAG en la elaboración de este artefacto</h4>
+      <ul>
+        <li>Diseño de la estrategia pedagógica EAIA aplicada a este artefacto</li>
+        <li>Programación de la lógica, interfaz y estructura técnica del artefacto</li>
+        <li>Redacción base de textos e instrucciones, revisada y validada por el profesor</li>
+        <li>Integración con la base de datos (Firebase) y las reglas de acceso</li>
+      </ul>
+    </div>
+    <div class="transp-section">
+      <p style="font-size:12.5px; color:var(--grafito-soft);">El profesor asume la responsabilidad total sobre el contenido, la pertinencia pedagógica y el funcionamiento de este artefacto. El uso de IA fue una herramienta de producción, no de autoría del criterio educativo.</p>
+    </div>
+    <div class="btn-row">
+      <button class="btn secondary" id="btnCloseTransp">Cerrar</button>
+    </div>
+  </div>
+</div>
+
 <footer class="foot">EAIA — Estrategia de Aprendizaje de Inmersión Activa · Facultad de Telemática, Universidad de Colima</footer>
 
 <script type="module">
@@ -578,6 +622,9 @@ document.querySelectorAll("[data-back]").forEach(btn=>{
   btn.addEventListener("click", ()=> showView(btn.dataset.back));
 });
 document.getElementById("homeBtn").addEventListener("click", ()=> showView("landing"));
+document.getElementById("btnTransparencia").addEventListener("click", ()=> document.getElementById("transpOverlay").classList.add("active"));
+document.getElementById("btnCloseTransp").addEventListener("click", ()=> document.getElementById("transpOverlay").classList.remove("active"));
+document.getElementById("transpOverlay").addEventListener("click", (ev)=>{ if(ev.target.id==="transpOverlay") ev.currentTarget.classList.remove("active"); });
 document.getElementById("goAlumno").addEventListener("click", ()=>{
   // restore last matricula if saved locally, for convenience only
   try{
@@ -841,21 +888,34 @@ onAuthStateChanged(auth, async (user)=>{
   if(user && user.email === PROFESOR_EMAIL){
     status.textContent = "profesor conectado";
     document.getElementById("profEmailDisplay").textContent = user.email;
-    await cargarDashboardProfesor();
     showView("profesor-dash");
+    await cargarDashboardProfesor();
   } else {
     status.textContent = "sin sesión";
   }
 });
 
 async function cargarDashboardProfesor(){
-  const snap = await getDocs(collection(db, COLLECTION));
-  profesorAllDocs = [];
-  snap.forEach(d=> profesorAllDocs.push(d.data()));
-  const declSnap = await getDocs(collection(db, COLLECTION_DECLARA));
-  profesorAllDeclaraciones = {};
-  declSnap.forEach(d=> profesorAllDeclaraciones[d.id] = d.data());
+  const errores = [];
+  try{
+    const snap = await getDocs(collection(db, COLLECTION));
+    profesorAllDocs = [];
+    snap.forEach(d=> profesorAllDocs.push(d.data()));
+  }catch(err){
+    errores.push(`Respuestas de bitácora: ${err.code||err.message}`);
+  }
+  try{
+    const declSnap = await getDocs(collection(db, COLLECTION_DECLARA));
+    profesorAllDeclaraciones = {};
+    declSnap.forEach(d=> profesorAllDeclaraciones[d.id] = d.data());
+  }catch(err){
+    errores.push(`Declaratorias de IAG: ${err.code||err.message}`);
+  }
   renderDashboard();
+  const statsEl = document.getElementById("dashStats");
+  if(errores.length){
+    statsEl.insertAdjacentHTML("beforebegin", `<div class="msg error" style="margin-bottom:16px;">No se pudo cargar todo: ${errores.join(" · ")}. Revisa que pegaste la versión más reciente de las reglas de seguridad en Firestore (colecciones bitacora_respuestas y bitacora_declaraciones).</div>`);
+  }
 }
 
 function renderDashboard(){
