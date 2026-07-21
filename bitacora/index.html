@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bitácora Digital — Fundamentos de Programación</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --grafito:#23262F;
+    --grafito-soft:#4B4F5C;
+    --indigo:#4A5FE8;
+    --indigo-dark:#3548C9;
+    --teal:#12A594;
+    --teal-soft:#E4F6F3;
+    --amber:#F0A93B;
+    --amber-soft:#FCF0DC;
+    --paper:#F7F6F3;
+    --card:#FFFFFF;
+    --line:#E4E2DC;
+    --danger:#D64545;
+    --radius:14px;
+    --font-display:'Space Grotesk', sans-serif;
+    --font-body:'IBM Plex Sans', sans-serif;
+    --font-mono:'JetBrains Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--paper); color:var(--grafito);
+    font-family:var(--font-body); line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{font-family:var(--font-display); margin:0; letter-spacing:-0.01em;}
+  .mono{font-family:var(--font-mono);}
+  button{font-family:var(--font-body); cursor:pointer; border:none;}
+  button:focus-visible, input:focus-visible, textarea:focus-visible{outline:3px solid var(--amber); outline-offset:2px;}
+  a{color:var(--indigo);}
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 28px; background:var(--grafito); color:#fff;
+  }
+  .brand{display:flex; align-items:center; gap:12px;}
+  .brand-mark{
+    width:34px; height:34px; border-radius:9px;
+    background:linear-gradient(135deg, var(--indigo), var(--teal));
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-display); font-weight:700; font-size:15px; color:#fff;
+  }
+  .brand-text{font-family:var(--font-display); font-weight:600; font-size:16px;}
+  .brand-text small{display:block; font-family:var(--font-body); font-weight:400; font-size:11px; opacity:0.65; letter-spacing:0.02em;}
+  .topbar-right{display:flex; align-items:center; gap:14px; font-size:13px;}
+  .pill{
+    padding:5px 12px; border-radius:999px; font-size:12px; font-family:var(--font-mono);
+    background:rgba(255,255,255,0.1); color:#fff;
+  }
+  .link-btn{background:none; color:rgba(255,255,255,0.75); font-size:13px; text-decoration:underline;}
+
+  /* ---------- Layout ---------- */
+  .wrap{max-width:1080px; margin:0 auto; padding:40px 24px 80px;}
+  .view{display:none;}
+  .view.active{display:block;}
+
+  /* ---------- Landing ---------- */
+  .hero{text-align:center; padding:60px 20px 40px;}
+  .hero h1{font-size:34px; margin-bottom:10px;}
+  .hero p{color:var(--grafito-soft); max-width:520px; margin:0 auto; font-size:15px;}
+  .role-grid{display:grid; grid-template-columns:1fr 1fr; gap:20px; max-width:640px; margin:40px auto 0;}
+  @media (max-width:560px){.role-grid{grid-template-columns:1fr;}}
+  .role-card{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:28px 24px; text-align:left; transition:border-color .15s, transform .15s;
+  }
+  .role-card:hover{border-color:var(--indigo); transform:translateY(-2px);}
+  .role-card .icon{font-size:26px; margin-bottom:10px; display:block;}
+  .role-card h3{font-size:18px; margin-bottom:6px;}
+  .role-card p{font-size:13px; color:var(--grafito-soft); margin:0 0 16px;}
+  .role-card .go{
+    background:var(--grafito); color:#fff; padding:9px 16px; border-radius:8px; font-size:13px; font-weight:500;
+  }
+  .role-card.profesor .go{background:var(--indigo);}
+
+  /* ---------- Cards / generic ---------- */
+  .card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:24px;}
+  .field{margin-bottom:16px;}
+  .field label{display:block; font-size:13px; font-weight:600; margin-bottom:6px; color:var(--grafito);}
+  .field input, .field textarea{
+    width:100%; padding:11px 13px; border:1.5px solid var(--line); border-radius:9px;
+    font-family:var(--font-body); font-size:14px; background:#fff; color:var(--grafito);
+  }
+  .field textarea{resize:vertical; min-height:90px; line-height:1.55;}
+  .field input.mono{font-family:var(--font-mono);}
+  .btn{
+    padding:11px 20px; border-radius:9px; font-size:14px; font-weight:600;
+    background:var(--indigo); color:#fff; transition:background .15s;
+  }
+  .btn:hover{background:var(--indigo-dark);}
+  .btn.secondary{background:transparent; color:var(--grafito); border:1.5px solid var(--line);}
+  .btn.secondary:hover{border-color:var(--grafito);}
+  .btn.ghost{background:transparent; color:var(--indigo); padding:8px 4px;}
+  .btn:disabled{opacity:0.45; cursor:not-allowed;}
+  .btn-row{display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
+  .msg{font-size:13px; padding:10px 14px; border-radius:8px; margin-top:10px;}
+  .msg.error{background:#FBEAEA; color:var(--danger);}
+  .msg.ok{background:var(--teal-soft); color:var(--teal);}
+  .back-link{background:none; color:var(--grafito-soft); font-size:13px; margin-bottom:18px; display:inline-flex; align-items:center; gap:6px;}
+  .back-link:hover{color:var(--grafito);}
+
+  /* ---------- Alumno: progreso ---------- */
+  .alumno-header{display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:22px; flex-wrap:wrap; gap:12px;}
+  .alumno-header h2{font-size:22px;}
+  .alumno-header .who{font-size:13px; color:var(--grafito-soft); margin-top:4px;}
+  .progress-summary{
+    font-family:var(--font-mono); font-size:13px; background:var(--grafito); color:#fff;
+    padding:8px 14px; border-radius:8px;
+  }
+  .unidad-block{margin-bottom:30px;}
+  .unidad-title{
+    font-size:12px; text-transform:uppercase; letter-spacing:0.08em; color:var(--grafito-soft);
+    font-weight:600; margin-bottom:12px; display:flex; align-items:center; gap:10px;
+  }
+  .unidad-title .count{font-family:var(--font-mono); font-weight:400; letter-spacing:0;}
+  .entry-list{display:flex; flex-direction:column; gap:8px;}
+  .entry-row{
+    display:flex; align-items:center; gap:14px; padding:14px 16px;
+    background:var(--card); border:1px solid var(--line); border-radius:10px;
+    transition:border-color .12s;
+  }
+  .entry-row:hover{border-color:var(--indigo);}
+  .entry-row button.open{flex:1; display:flex; align-items:center; gap:14px; background:none; text-align:left; padding:0;}
+  .entry-check{
+    width:26px; height:26px; border-radius:50%; flex:none;
+    display:flex; align-items:center; justify-content:center; font-size:13px;
+    border:2px solid var(--line); color:transparent;
+  }
+  .entry-check.done{background:var(--teal); border-color:var(--teal); color:#fff;}
+  .entry-check.pending{border-color:var(--amber); color:var(--amber); font-family:var(--font-mono); font-size:11px;}
+  .entry-main .sesion{font-size:11px; color:var(--grafito-soft); font-family:var(--font-mono); margin-bottom:2px;}
+  .entry-main .tema{font-size:14.5px; font-weight:500;}
+  .entry-arrow{color:var(--grafito-soft); font-size:16px;}
+  .placeholder-block{
+    padding:16px 18px; border:1.5px dashed var(--line); border-radius:10px;
+    font-size:13px; color:var(--grafito-soft); background:#FBFAF8;
+  }
+
+  /* ---------- Entrada (responder) ---------- */
+  .entrada-card .sesion-tag{font-family:var(--font-mono); font-size:12px; color:var(--indigo); margin-bottom:6px;}
+  .entrada-card h2{font-size:22px; margin-bottom:20px;}
+  .pregunta-block{margin-bottom:22px;}
+  .pregunta-num{
+    display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px;
+    border-radius:50%; background:var(--grafito); color:#fff; font-family:var(--font-mono); font-size:12px;
+    margin-right:8px; flex:none;
+  }
+  .pregunta-text{font-size:14.5px; font-weight:500; margin-bottom:10px; display:flex; align-items:flex-start; gap:4px;}
+  .pregunta-text span.txt{padding-top:2px;}
+
+  /* ---------- Profesor: login ---------- */
+  .login-card{max-width:420px; margin:60px auto; text-align:center; padding:40px 30px;}
+  .login-card h2{font-size:20px; margin-bottom:8px;}
+  .login-card p{font-size:13px; color:var(--grafito-soft); margin-bottom:24px;}
+  .google-btn{
+    display:inline-flex; align-items:center; gap:10px; background:#fff; color:var(--grafito);
+    border:1.5px solid var(--line); padding:11px 22px; border-radius:9px; font-weight:500; font-size:14px;
+  }
+  .google-btn:hover{border-color:var(--grafito);}
+
+  /* ---------- Profesor: dashboard ---------- */
+  .dash-header{display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; flex-wrap:wrap; gap:12px;}
+  .dash-header h2{font-size:22px;}
+  .dash-stats{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:24px;}
+  .stat{
+    background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px 18px; min-width:130px;
+  }
+  .stat .n{font-family:var(--font-display); font-size:24px; font-weight:700;}
+  .stat .l{font-size:11.5px; color:var(--grafito-soft); text-transform:uppercase; letter-spacing:0.04em;}
+  .table-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius); background:var(--card);}
+  table{border-collapse:collapse; width:100%; font-size:13px;}
+  th,td{padding:10px 12px; border-bottom:1px solid var(--line); text-align:left; white-space:nowrap;}
+  thead th{
+    background:#FBFAF8; font-family:var(--font-mono); font-weight:500; font-size:11px; color:var(--grafito-soft);
+    position:sticky; top:0; cursor:pointer;
+  }
+  thead th:hover{color:var(--indigo);}
+  tbody tr:hover{background:#FBFAF8;}
+  td.alumno-cell{font-weight:500; position:sticky; left:0; background:var(--card);}
+  tbody tr:hover td.alumno-cell{background:#FBFAF8;}
+  .cell-dot{width:20px; height:20px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:11px;}
+  .cell-dot.done{background:var(--teal); color:#fff;}
+  .cell-dot.empty{background:var(--paper); border:1.5px dashed var(--line);}
+  button.cell-btn{background:none; padding:0;}
+
+  /* ---------- Panel lateral: respuestas de una entrada ---------- */
+  .panel-overlay{
+    display:none; position:fixed; inset:0; background:rgba(35,38,47,0.5); z-index:40;
+    align-items:stretch; justify-content:flex-end;
+  }
+  .panel-overlay.active{display:flex;}
+  .panel{
+    width:min(560px, 100%); background:var(--paper); height:100%; overflow-y:auto;
+    padding:28px 26px 60px; box-shadow:-8px 0 30px rgba(0,0,0,0.15);
+  }
+  .panel-close{background:none; font-size:20px; color:var(--grafito-soft); float:right;}
+  .respuesta-card{
+    background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin-bottom:12px;
+  }
+  .respuesta-card .who{font-family:var(--font-mono); font-size:12px; color:var(--indigo); margin-bottom:8px;}
+  .respuesta-card .qa{margin-bottom:10px;}
+  .respuesta-card .qa .q{font-size:12px; color:var(--grafito-soft); margin-bottom:2px;}
+  .respuesta-card .qa .a{font-size:13.5px;}
+  .empty-note{font-size:13px; color:var(--grafito-soft); padding:20px 0;}
+
+  /* ---------- Export modal ---------- */
+  .modal-overlay{
+    display:none; position:fixed; inset:0; background:rgba(35,38,47,0.55); z-index:50;
+    align-items:center; justify-content:center; padding:20px;
+  }
+  .modal-overlay.active{display:flex;}
+  .modal{background:var(--card); border-radius:var(--radius); max-width:640px; width:100%; padding:26px; max-height:85vh; display:flex; flex-direction:column;}
+  .modal h3{font-size:17px; margin-bottom:6px;}
+  .modal p.hint{font-size:12.5px; color:var(--grafito-soft); margin-bottom:14px;}
+  .modal textarea{
+    flex:1; min-height:280px; font-family:var(--font-mono); font-size:12px; padding:14px;
+    border:1.5px solid var(--line); border-radius:9px; background:#FBFAF8; white-space:pre; resize:vertical;
+  }
+  .modal .btn-row{margin-top:14px; justify-content:flex-end;}
+
+  footer.foot{text-align:center; padding:30px; font-size:12px; color:var(--grafito-soft);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-mark">EA</div>
+    <div class="brand-text">Bitácora Digital
+      <small>Fundamentos de Programación — Ingeniería en Software</small>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <span class="pill" id="topbarStatus">sin sesión</span>
+    <button class="link-btn" id="homeBtn">Inicio</button>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- ============ LANDING ============ -->
+  <div class="view active" id="view-landing">
+    <div class="hero">
+      <h1>Tu reflexión, tema por tema</h1>
+      <p>Al cerrar cada sesión respondes tres preguntas de reflexión. Aquí quedan juntas, no sueltas en 21 archivos distintos — para que tú veas tu propio recorrido, y tu profesor pueda ajustar el curso con base en lo que de verdad aprendiste.</p>
+    </div>
+    <div class="role-grid">
+      <div class="role-card alumno">
+        <span class="icon">🎓</span>
+        <h3>Soy alumno</h3>
+        <p>Entra con tu matrícula y responde la reflexión de la sesión que acabas de terminar.</p>
+        <button class="go" id="goAlumno">Entrar como alumno →</button>
+      </div>
+      <div class="role-card profesor">
+        <span class="icon">🔒</span>
+        <h3>Soy el profesor</h3>
+        <p>Vista restringida: avance del grupo, respuestas agregadas por tema y resumen exportable.</p>
+        <button class="go" id="goProfesor">Entrar como profesor →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ ALUMNO: LOGIN ============ -->
+  <div class="view" id="view-alumno-login">
+    <button class="back-link" data-back="landing">← Inicio</button>
+    <div class="card" style="max-width:420px; margin:20px auto;">
+      <h2 style="font-size:19px; margin-bottom:4px;">Identifícate</h2>
+      <p style="font-size:13px; color:var(--grafito-soft); margin-bottom:20px;">Usa la misma matrícula en cada sesión — así encontramos tu progreso.</p>
+      <div class="field">
+        <label for="inMatricula">Matrícula</label>
+        <input type="text" id="inMatricula" class="mono" placeholder="Ej. A01234567" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="inNombre">Nombre completo</label>
+        <input type="text" id="inNombre" placeholder="Ej. Ana López Ramírez" autocomplete="off">
+      </div>
+      <button class="btn" id="btnEntrarAlumno" style="width:100%;">Ver mi bitácora</button>
+      <div id="alumnoLoginMsg"></div>
+    </div>
+  </div>
+
+  <!-- ============ ALUMNO: PROGRESO ============ -->
+  <div class="view" id="view-alumno-progreso">
+    <button class="back-link" data-back="landing">← Salir</button>
+    <div class="alumno-header">
+      <div>
+        <h2 id="alumnoNombreDisplay">—</h2>
+        <div class="who mono" id="alumnoMatriculaDisplay">—</div>
+      </div>
+      <div class="progress-summary" id="alumnoProgressSummary">0 / 0 completadas</div>
+    </div>
+    <div id="alumnoUnidades"></div>
+  </div>
+
+  <!-- ============ ALUMNO: ENTRADA (RESPONDER) ============ -->
+  <div class="view" id="view-alumno-entrada">
+    <button class="back-link" data-back="alumno-progreso">← Volver a mi bitácora</button>
+    <div class="card entrada-card">
+      <div class="sesion-tag mono" id="entradaSesionTag">—</div>
+      <h2 id="entradaTemaTitulo">—</h2>
+      <div id="entradaPreguntas"></div>
+      <div class="btn-row">
+        <button class="btn" id="btnGuardarRespuesta">Guardar respuestas</button>
+        <span style="font-size:12px; color:var(--grafito-soft);" id="entradaGuardadoInfo"></span>
+      </div>
+      <div id="entradaMsg"></div>
+    </div>
+  </div>
+
+  <!-- ============ PROFESOR: LOGIN ============ -->
+  <div class="view" id="view-profesor-login">
+    <button class="back-link" data-back="landing">← Inicio</button>
+    <div class="card login-card">
+      <h2>Vista de profesor</h2>
+      <p>Acceso restringido con tu cuenta institucional de Google.</p>
+      <button class="google-btn" id="btnGoogleSignIn">
+        <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.71v2.26h2.9c1.7-1.57 2.7-3.88 2.7-6.61z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.19l-2.9-2.26c-.8.54-1.84.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.96v2.33A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.95 10.69A5.41 5.41 0 0 1 3.67 9c0-.59.1-1.16.28-1.69V4.98H.96A9 9 0 0 0 0 9c0 1.45.35 2.83.96 4.02l2.99-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.51.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .96 4.98l2.99 2.33C4.66 5.17 6.65 3.58 9 3.58z"/></svg>
+        Continuar con Google
+      </button>
+      <div id="profesorLoginMsg"></div>
+    </div>
+  </div>
+
+  <!-- ============ PROFESOR: DASHBOARD ============ -->
+  <div class="view" id="view-profesor-dash">
+    <div class="dash-header">
+      <div>
+        <h2>Avance del grupo</h2>
+        <div style="font-size:12.5px; color:var(--grafito-soft); margin-top:2px;">Vista restringida — <span id="profEmailDisplay" class="mono"></span></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn secondary" id="btnRefrescar">Actualizar</button>
+        <button class="btn" id="btnExportarTodo">Generar resumen exportable</button>
+        <button class="btn secondary" id="btnCerrarSesion">Cerrar sesión</button>
+      </div>
+    </div>
+    <div class="dash-stats" id="dashStats"></div>
+    <div class="table-wrap">
+      <table id="dashTable"></table>
+    </div>
+  </div>
+
+</div>
+
+<!-- Panel lateral: respuestas de una entrada -->
+<div class="panel-overlay" id="panelOverlay">
+  <div class="panel">
+    <button class="panel-close" id="panelClose">✕</button>
+    <div id="panelContent"></div>
+  </div>
+</div>
+
+<!-- Modal exportable -->
+<div class="modal-overlay" id="exportOverlay">
+  <div class="modal">
+    <h3>Resumen exportable</h3>
+    <p class="hint">Copia este texto y pégalo directamente en un análisis con Claude para detectar patrones en las reflexiones del grupo.</p>
+    <textarea id="exportText" readonly></textarea>
+    <div class="btn-row">
+      <button class="btn secondary" id="btnCloseExport">Cerrar</button>
+      <button class="btn" id="btnCopyExport">Copiar al portapapeles</button>
+    </div>
+  </div>
+</div>
+
+<footer class="foot">EAIA — Estrategia de Aprendizaje de Inmersión Activa · Facultad de Telemática, Universidad de Colima</footer>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, setDoc, collection, getDocs, query, where
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* ================== CONFIG ================== */
+const firebaseConfig = {
+  apiKey: "AIzaSyBPs5sfkb6YvArZSN1_jokuVKnAQdtBTX4",
+  authDomain: "programacionweb-e078d.firebaseapp.com",
+  projectId: "programacionweb-e078d",
+  storageBucket: "programacionweb-e078d.firebasestorage.app",
+  messagingSenderId: "352274846196",
+  appId: "1:352274846196:web:481117fab741005165e9a1"
+};
+const PROFESOR_EMAIL = "rjaramillo0@ucol.mx";
+const COLLECTION = "bitacora_respuestas";
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+/* ================== TEMARIO ================== */
+/* Unidad II y III: agregar aquí cuando se tengan las preguntas reales de cada sesión. */
+const TEMARIO = {
+  unidad1: {
+    nombre: "Unidad I — Introducción y Conceptos Básicos",
+    entradas: [
+      { id:"s2", sesion:"Sesión 2", tema:"Pensamiento Computacional y Algoritmos", preguntas:[
+        "¿Qué actividad de tu vida diaria resultó ser un algoritmo? ¿Cumple FPE?",
+        "En la actividad de Miro, ¿cuál fue el paso más difícil de hacer preciso? ¿Por qué el lenguaje natural falla donde un algoritmo necesita exactitud?",
+        "Del caso Amazon 2018: si tú hubieras sido el ingeniero que diseñó ese sistema, ¿qué habrías hecho diferente antes de publicarlo?"
+      ]},
+      { id:"s3", sesion:"Sesión 3", tema:"Diagramas de Flujo y Pseudocódigo", preguntas:[
+        "¿Qué fue más difícil de hacer preciso: el diagrama o el pseudocódigo? ¿Por qué?",
+        "En el co-diseño, ¿qué ambigüedad de tu algoritmo descubriste que no habías notado al escribirlo?",
+        "Ahora que ya viste las 4 representaciones, ¿por qué crees que los programadores modelan antes de escribir código?"
+      ]},
+      { id:"s4", sesion:"Sesión 4", tema:"Introducción a Python: Sintaxis y Entorno", preguntas:[
+        "Cuando vivimos el IndentationError en el live coding, ¿qué pensaste antes de que lo explicáramos?",
+        "De los 3 tipos de error (sintaxis, ejecución, semántico), ¿cuál te parece más difícil de detectar? ¿Por qué?",
+        "¿Cómo te sentiste cuando tu programa individual funcionó correctamente por primera vez?"
+      ]},
+      { id:"s5", sesion:"Sesión 5", tema:"Tipos de Datos, Variables y Constantes", preguntas:[
+        "¿Qué error de conversión (ValueError) cometiste hoy? ¿Qué texto intentaste convertir que no funcionó?",
+        "¿Por qué crees que Python no obliga a declarar el tipo de una variable, a diferencia de otros lenguajes?",
+        "Ahora que resolviste el problema de Sesión 4, ¿qué otro problema imaginas que podrías resolver con lo que aprendiste hoy?"
+      ]},
+      { id:"s6", sesion:"Sesión 6", tema:"Operadores Aritméticos, Relacionales y Lógicos", preguntas:[
+        "¿Cuál de los 3 grupos de operadores (aritméticos, relacionales, lógicos) te resultó más intuitivo? ¿Cuál menos?",
+        "En tu validador de beca, ¿qué combinación de and/or usaste? ¿Por qué esa y no otra?",
+        "Ahora que dominas estos operadores, ¿qué tipo de decisiones te imaginas construyendo con SI en la próxima sesión?"
+      ]},
+      { id:"s7", sesion:"Sesión 7", tema:"Condicionales — Parte 1", preguntas:[
+        "En tu clasificador de envío, ¿en qué orden pusiste las condiciones? ¿Qué hubiera pasado si las invertías?",
+        "¿Cómo se conecta lo de hoy con el pseudocódigo SI/SINO de Sesión 3? ¿Qué cambió y qué se mantuvo igual?",
+        "¿Qué decisión de tu vida diaria podrías modelar con if/elif/else?"
+      ]},
+      { id:"s8", sesion:"Sesión 8", tema:"Condicionales Parte 2 — Reto Final (cierre de unidad)", preguntas:[
+        "De la Sesión 2 a hoy, ¿qué fue lo más difícil de superar? ¿Cómo lo lograste?",
+        "¿Qué parte de tu Reto Final te dio más orgullo al terminarla?",
+        "¿Qué esperas aprender en la Unidad II?"
+      ]},
+    ]
+  },
+  unidad2: { nombre:"Unidad II — Estructuras Repetitivas y Datos Lineales", entradas:[] },
+  unidad3: { nombre:"Unidad III — Funciones y Librerías", entradas:[] },
+};
+
+function allEntradas(){
+  const out = [];
+  for(const uKey of Object.keys(TEMARIO)){
+    for(const e of TEMARIO[uKey].entradas){ out.push({ ...e, unidadKey:uKey, unidadNombre:TEMARIO[uKey].nombre }); }
+  }
+  return out;
+}
+function findEntrada(entryId){ return allEntradas().find(e => e.id === entryId); }
+function totalEntradas(){ return allEntradas().length; }
+
+/* ================== STATE ================== */
+let currentAlumno = null; // {matricula, nombre}
+let currentEntryId = null;
+let alumnoRespuestas = {}; // entryId -> {respuestas:[], completado, timestamp}
+let profesorAllDocs = []; // list of all docs when signed in as profesor
+
+/* ================== VIEW ROUTING ================== */
+const views = ["landing","alumno-login","alumno-progreso","alumno-entrada","profesor-login","profesor-dash"];
+function showView(name){
+  views.forEach(v => document.getElementById("view-"+v).classList.toggle("active", v===name));
+  window.scrollTo({top:0, behavior:"instant"});
+}
+document.querySelectorAll("[data-back]").forEach(btn=>{
+  btn.addEventListener("click", ()=> showView(btn.dataset.back));
+});
+document.getElementById("homeBtn").addEventListener("click", ()=> showView("landing"));
+document.getElementById("goAlumno").addEventListener("click", ()=>{
+  // restore last matricula if saved locally, for convenience only
+  try{
+    const saved = JSON.parse(localStorage.getItem("bitacora_alumno")||"null");
+    if(saved){ document.getElementById("inMatricula").value = saved.matricula; document.getElementById("inNombre").value = saved.nombre; }
+  }catch(e){}
+  showView("alumno-login");
+});
+document.getElementById("goProfesor").addEventListener("click", ()=> showView("profesor-login"));
+
+/* ================== ALUMNO ================== */
+document.getElementById("btnEntrarAlumno").addEventListener("click", async ()=>{
+  const matricula = document.getElementById("inMatricula").value.trim().toUpperCase();
+  const nombre = document.getElementById("inNombre").value.trim();
+  const msgEl = document.getElementById("alumnoLoginMsg");
+  msgEl.innerHTML = "";
+  if(!matricula || !nombre){
+    msgEl.innerHTML = '<div class="msg error">Escribe tu matrícula y tu nombre completo.</div>';
+    return;
+  }
+  currentAlumno = { matricula, nombre };
+  try{ localStorage.setItem("bitacora_alumno", JSON.stringify(currentAlumno)); }catch(e){}
+  await cargarProgresoAlumno();
+  showView("alumno-progreso");
+});
+
+async function cargarProgresoAlumno(){
+  alumnoRespuestas = {};
+  const entradas = allEntradas();
+  await Promise.all(entradas.map(async (e)=>{
+    try{
+      const snap = await getDoc(doc(db, COLLECTION, `${currentAlumno.matricula}__${e.id}`));
+      if(snap.exists()) alumnoRespuestas[e.id] = snap.data();
+    }catch(err){ /* doc simply may not exist yet */ }
+  }));
+  renderAlumnoProgreso();
+}
+
+function renderAlumnoProgreso(){
+  document.getElementById("alumnoNombreDisplay").textContent = currentAlumno.nombre;
+  document.getElementById("alumnoMatriculaDisplay").textContent = currentAlumno.matricula;
+  const total = totalEntradas();
+  const hechas = Object.values(alumnoRespuestas).filter(r=>r.completado).length;
+  document.getElementById("alumnoProgressSummary").textContent = `${hechas} / ${total} completadas`;
+
+  const cont = document.getElementById("alumnoUnidades");
+  cont.innerHTML = "";
+  for(const uKey of Object.keys(TEMARIO)){
+    const u = TEMARIO[uKey];
+    const block = document.createElement("div");
+    block.className = "unidad-block";
+    const doneCount = u.entradas.filter(e=>alumnoRespuestas[e.id]?.completado).length;
+    block.innerHTML = `<div class="unidad-title">${u.nombre} <span class="count mono">(${doneCount}/${u.entradas.length})</span></div>`;
+    const list = document.createElement("div");
+    list.className = "entry-list";
+    if(u.entradas.length === 0){
+      list.innerHTML = `<div class="placeholder-block">Próximamente — esta unidad se agrega cuando esté disponible.</div>`;
+    } else {
+      u.entradas.forEach(e=>{
+        const done = alumnoRespuestas[e.id]?.completado;
+        const row = document.createElement("div");
+        row.className = "entry-row";
+        row.innerHTML = `
+          <button class="open">
+            <span class="entry-check ${done? "done":"pending"}">${done? "✓":"○"}</span>
+            <span class="entry-main">
+              <div class="sesion">${e.sesion}</div>
+              <div class="tema">${e.tema}</div>
+            </span>
+          </button>
+          <span class="entry-arrow">→</span>`;
+        row.querySelector(".open").addEventListener("click", ()=> abrirEntrada(e.id));
+        list.appendChild(row);
+      });
+    }
+    block.appendChild(list);
+    cont.appendChild(block);
+  }
+}
+
+function abrirEntrada(entryId){
+  currentEntryId = entryId;
+  const e = findEntrada(entryId);
+  document.getElementById("entradaSesionTag").textContent = `${e.unidadNombre} · ${e.sesion}`;
+  document.getElementById("entradaTemaTitulo").textContent = e.tema;
+  const existing = alumnoRespuestas[entryId]?.respuestas || [];
+  const cont = document.getElementById("entradaPreguntas");
+  cont.innerHTML = "";
+  e.preguntas.forEach((p, i)=>{
+    const block = document.createElement("div");
+    block.className = "pregunta-block";
+    block.innerHTML = `
+      <div class="pregunta-text"><span class="pregunta-num">${i+1}</span><span class="txt">${p}</span></div>
+      <textarea id="respuesta-${i}" placeholder="Escribe tu respuesta...">${existing[i]||""}</textarea>`;
+    cont.appendChild(block);
+  });
+  const info = alumnoRespuestas[entryId]?.timestamp
+    ? `Guardado por última vez: ${new Date(alumnoRespuestas[entryId].timestamp).toLocaleString("es-MX")}`
+    : "Aún no has guardado esta entrada.";
+  document.getElementById("entradaGuardadoInfo").textContent = info;
+  document.getElementById("entradaMsg").innerHTML = "";
+  showView("alumno-entrada");
+}
+
+document.getElementById("btnGuardarRespuesta").addEventListener("click", async ()=>{
+  const e = findEntrada(currentEntryId);
+  const respuestas = e.preguntas.map((_,i)=> document.getElementById(`respuesta-${i}`).value.trim());
+  const msgEl = document.getElementById("entradaMsg");
+  if(respuestas.some(r=>!r)){
+    msgEl.innerHTML = '<div class="msg error">Responde las tres preguntas antes de guardar.</div>';
+    return;
+  }
+  const payload = {
+    matricula: currentAlumno.matricula,
+    nombre: currentAlumno.nombre,
+    entryId: currentEntryId,
+    unidad: e.unidadKey,
+    sesion: e.sesion,
+    tema: e.tema,
+    respuestas,
+    completado: true,
+    timestamp: Date.now()
+  };
+  try{
+    await setDoc(doc(db, COLLECTION, `${currentAlumno.matricula}__${currentEntryId}`), payload);
+    alumnoRespuestas[currentEntryId] = payload;
+    msgEl.innerHTML = '<div class="msg ok">Guardado. Ya puedes cerrar o seguir con otra sesión.</div>';
+    document.getElementById("entradaGuardadoInfo").textContent = `Guardado por última vez: ${new Date(payload.timestamp).toLocaleString("es-MX")}`;
+  }catch(err){
+    msgEl.innerHTML = `<div class="msg error">No se pudo guardar (${err.code||err.message}). Revisa tu conexión e intenta de nuevo.</div>`;
+  }
+});
+
+/* ================== PROFESOR ================== */
+const provider = new GoogleAuthProvider();
+document.getElementById("btnGoogleSignIn").addEventListener("click", async ()=>{
+  const msgEl = document.getElementById("profesorLoginMsg");
+  msgEl.innerHTML = "";
+  try{
+    const res = await signInWithPopup(auth, provider);
+    if(res.user.email !== PROFESOR_EMAIL){
+      msgEl.innerHTML = `<div class="msg error">Esta vista está restringida a ${PROFESOR_EMAIL}. Cerraste sesión con ${res.user.email}.</div>`;
+      await signOut(auth);
+      return;
+    }
+  }catch(err){
+    msgEl.innerHTML = `<div class="msg error">No se pudo iniciar sesión (${err.code||err.message}).</div>`;
+  }
+});
+
+document.getElementById("btnCerrarSesion").addEventListener("click", async ()=>{
+  await signOut(auth);
+  showView("landing");
+});
+
+onAuthStateChanged(auth, async (user)=>{
+  const status = document.getElementById("topbarStatus");
+  if(user && user.email === PROFESOR_EMAIL){
+    status.textContent = "profesor conectado";
+    document.getElementById("profEmailDisplay").textContent = user.email;
+    await cargarDashboardProfesor();
+    showView("profesor-dash");
+  } else {
+    status.textContent = "sin sesión";
+  }
+});
+
+async function cargarDashboardProfesor(){
+  const snap = await getDocs(collection(db, COLLECTION));
+  profesorAllDocs = [];
+  snap.forEach(d=> profesorAllDocs.push(d.data()));
+  renderDashboard();
+}
+
+function renderDashboard(){
+  const entradas = allEntradas();
+  const alumnosMap = {}; // matricula -> {nombre, entries:{entryId:doc}}
+  profesorAllDocs.forEach(d=>{
+    if(!alumnosMap[d.matricula]) alumnosMap[d.matricula] = { nombre:d.nombre, entries:{} };
+    alumnosMap[d.matricula].entries[d.entryId] = d;
+  });
+  const matriculas = Object.keys(alumnosMap).sort();
+
+  // stats
+  const totalPosible = matriculas.length * entradas.length;
+  const totalHecho = profesorAllDocs.filter(d=>d.completado).length;
+  const stats = document.getElementById("dashStats");
+  stats.innerHTML = `
+    <div class="stat"><div class="n">${matriculas.length}</div><div class="l">Alumnos activos</div></div>
+    <div class="stat"><div class="n">${entradas.length}</div><div class="l">Entradas disponibles</div></div>
+    <div class="stat"><div class="n">${totalHecho}</div><div class="l">Respuestas guardadas</div></div>
+    <div class="stat"><div class="n">${totalPosible? Math.round(100*totalHecho/totalPosible):0}%</div><div class="l">Avance del grupo</div></div>`;
+
+  // table
+  const table = document.getElementById("dashTable");
+  if(matriculas.length === 0){
+    table.innerHTML = `<tr><td style="padding:24px; color:var(--grafito-soft);">Todavía no hay respuestas guardadas por ningún alumno.</td></tr>`;
+    return;
+  }
+  let thead = "<thead><tr><th>Alumno</th>";
+  entradas.forEach(e=>{ thead += `<th title="${e.tema}"><button class="cell-btn mono" data-entry="${e.id}">${e.sesion.replace("Sesión","S")}</button></th>`; });
+  thead += "</tr></thead>";
+
+  let tbody = "<tbody>";
+  matriculas.forEach(m=>{
+    tbody += `<tr><td class="alumno-cell">${alumnosMap[m].nombre}<div class="mono" style="font-size:11px; color:var(--grafito-soft);">${m}</div></td>`;
+    entradas.forEach(e=>{
+      const has = !!alumnosMap[m].entries[e.id];
+      tbody += `<td><span class="cell-dot ${has?"done":"empty"}">${has?"✓":""}</span></td>`;
+    });
+    tbody += "</tr>";
+  });
+  tbody += "</tbody>";
+  table.innerHTML = thead + tbody;
+
+  table.querySelectorAll("[data-entry]").forEach(btn=>{
+    btn.addEventListener("click", ()=> abrirPanelEntrada(btn.dataset.entry, alumnosMap));
+  });
+}
+
+function abrirPanelEntrada(entryId, alumnosMap){
+  const e = findEntrada(entryId);
+  const cont = document.getElementById("panelContent");
+  let html = `<h2 style="font-size:19px; margin-bottom:2px;">${e.tema}</h2>
+    <div class="mono" style="font-size:12px; color:var(--grafito-soft); margin-bottom:18px;">${e.unidadNombre} · ${e.sesion}</div>`;
+  const respondieron = Object.entries(alumnosMap).filter(([m,a])=>a.entries[entryId]);
+  if(respondieron.length === 0){
+    html += `<div class="empty-note">Nadie ha respondido esta entrada todavía.</div>`;
+  } else {
+    respondieron.forEach(([m,a])=>{
+      const d = a.entries[entryId];
+      html += `<div class="respuesta-card"><div class="who">${a.nombre} · ${m}</div>`;
+      e.preguntas.forEach((p,i)=>{
+        html += `<div class="qa"><div class="q">${p}</div><div class="a">${d.respuestas[i]||"—"}</div></div>`;
+      });
+      html += `</div>`;
+    });
+  }
+  cont.innerHTML = html;
+  document.getElementById("panelOverlay").classList.add("active");
+}
+document.getElementById("panelClose").addEventListener("click", ()=> document.getElementById("panelOverlay").classList.remove("active"));
+document.getElementById("panelOverlay").addEventListener("click", (ev)=>{ if(ev.target.id==="panelOverlay") ev.currentTarget.classList.remove("active"); });
+
+document.getElementById("btnRefrescar").addEventListener("click", cargarDashboardProfesor);
+
+document.getElementById("btnExportarTodo").addEventListener("click", ()=>{
+  const entradas = allEntradas();
+  const alumnosMap = {};
+  profesorAllDocs.forEach(d=>{
+    if(!alumnosMap[d.matricula]) alumnosMap[d.matricula] = { nombre:d.nombre, entries:{} };
+    alumnosMap[d.matricula].entries[d.entryId] = d;
+  });
+  let out = `RESUMEN DE BITÁCORA — Fundamentos de Programación\nGenerado: ${new Date().toLocaleString("es-MX")}\n`;
+  entradas.forEach(e=>{
+    out += `\n${"=".repeat(60)}\n${e.unidadNombre} · ${e.sesion} — ${e.tema}\n${"=".repeat(60)}\n`;
+    const respondieron = Object.entries(alumnosMap).filter(([m,a])=>a.entries[e.id]);
+    if(respondieron.length===0){ out += "(sin respuestas todavía)\n"; return; }
+    respondieron.forEach(([m,a])=>{
+      const d = a.entries[e.id];
+      out += `\n— ${a.nombre} (${m})\n`;
+      e.preguntas.forEach((p,i)=>{ out += `  P${i+1}: ${p}\n  R${i+1}: ${d.respuestas[i]||"—"}\n`; });
+    });
+  });
+  document.getElementById("exportText").value = out;
+  document.getElementById("exportOverlay").classList.add("active");
+});
+document.getElementById("btnCloseExport").addEventListener("click", ()=> document.getElementById("exportOverlay").classList.remove("active"));
+document.getElementById("btnCopyExport").addEventListener("click", async ()=>{
+  const ta = document.getElementById("exportText");
+  ta.select();
+  try{ await navigator.clipboard.writeText(ta.value); }catch(e){ document.execCommand("copy"); }
+  const btn = document.getElementById("btnCopyExport");
+  const old = btn.textContent; btn.textContent = "Copiado ✓";
+  setTimeout(()=> btn.textContent = old, 1500);
+});
+
+</script>
+</body>
+</html>
